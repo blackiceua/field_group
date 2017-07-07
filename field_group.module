@@ -174,7 +174,10 @@ function field_group_form_alter(array &$form, FormStateInterface $form_state) {
       );
 
       field_group_attach_groups($form, $context);
-      $form['#pre_render'][] = 'field_group_form_pre_render';
+      //$form['#pre_render'][] = 'field_group_form_pre_render';
+
+      field_group_build_entity_groups($form, 'form');
+
     }
   }
 
@@ -477,6 +480,10 @@ function field_group_fields_nest(&$element, &$vars = NULL, $context = NULL) {
         // If this is a group, we have to use a reference to keep the reference
         // list intact (but if it is a field we don't mind).
         $group_references[$parent_name][$child_name] = &$element[$child_name];
+
+        // Remove the #group value of this field as it is now part of a fieldgroup.
+        //unset($group_references[$parent_name][$child_name]['#group']);
+
         $group_references[$parent_name]['#weight'] = $element['#fieldgroups'][$parent_name]->weight;
       }
 
@@ -489,6 +496,7 @@ function field_group_fields_nest(&$element, &$vars = NULL, $context = NULL) {
   // Bring extra element wrappers to achieve a grouping of fields.
   // This will mainly be prefix and suffix altering.
   foreach ($element['#fieldgroups'] as $group_name => $group) {
+    $group_references[$group_name]['#group'] = 'left';
     field_group_pre_render($group_references[$group_name], $group, $element);
   }
 
